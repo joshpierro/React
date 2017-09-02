@@ -1,40 +1,49 @@
 import React from 'react'
-import * as ReactDom from "react-dom";
 
 class App extends React.Component {
-
-    constructor() {
+    constructor(){
         super();
-        this.state = {items: []}
+        this.state ={
+            input: '/*add jsx here*/',
+            output:'',
+            err:''
+        }
     }
 
-    update() {
-
+    update(e){
+        let code = e.target.value;
+        try{
+            this.setState(
+                {
+                    output:window.Babel.transform(code,{presets:['es2015','react']}).code,
+                    err:''
+                }
+            )
+        }
+        catch(err){
+            this.setState({err: err.message})
+        }
     }
-
-    componentWillMount() {
-        fetch('http://swapi.co/api/people/?format=json')
-            .then(response => response.json())
-            .then(({results:items}) => this.setState({items}))
-    }
-
-    render() {
-        let items = this.state.items;
+    render(){
         return (
             <div>
-                {items.map(item =>
-
-                    <Person
-                        person={item}
-                        key = {item.name}
-
-                    />
-                )}
+                <header>
+                    {this.state.err}
+                </header>
+                <div className="conainer">
+                    <textarea onChange={this.update.bind(this)}
+                              cols="30"
+                              rows="10"
+                    defaultValue={this.state.input}
+                    >
+                    </textarea>
+                    <pre>
+                        {this.state.output}
+                    </pre>
+                </div>
             </div>
         )
     }
 }
 
-const Person = (props) => <h3>{props.person.name}</h3>
-App.defaultProps = {val: 0}
 export default App
